@@ -3,7 +3,7 @@ import math
 from pathlib import Path
 import matplotlib as plt
 
-class QTS:
+class QEA:
     class QObjeto:
         """Abstracción de la representación de un qubit como un "objeto cuántico" del problema de la mochila.
         
@@ -53,6 +53,10 @@ class QTS:
     def medir_poblacion(self,poblacion_q):
         """Mide cada qubit de la población de ObjetosCuanticos y devuelve el resultado."""
         return [q.medir() for q in poblacion_q]
+    
+    def migrar(b,B):
+        for i in B:
+            B[i] = b
 
 
     def evaluar_solucion(self,poblacion_q, solucion):
@@ -178,7 +182,7 @@ class QTS:
             soluciones.append([solucion, *self.evaluar_y_reparar(poblacion_q, solucion, capacidad_max)])
         return soluciones
 
-    def actualizar_estado(self,poblacion_q, angulo, lista_tabu, iteraciones_tabu, solucion_actual, solucion_comparacion, es_mejor):
+    def actualizar_estado(self, poblacion_q,angulo, solucion_actual, b):
         """Actualiza cada qubit de la población aplicando la matriz 
         según la solución actual y la solución de comparación.
         
@@ -194,28 +198,34 @@ class QTS:
             Número de iteraciones que un ítem debe permanecer en la lista tabú.
         solucion_actual : [int]
             Solución actual de una medición de la población.
-        solucion_comparacion : [int]
+        b : [int]
             Solución para comparar con la actual.
-        es_mejor : bool
-            True si la solución de comparación fue la mejor encontrada.
         """
+        diferencia = b[1] - solucion_actual[1]
         for i, q in enumerate(poblacion_q):
-            if lista_tabu.setdefault(i, 0) == 0:
-                continue
-            diferencia = solucion_comparacion[i] - solucion_actual[i]
-            if diferencia == 0:
-                continue
-            if not es_mejor: 
-                diferencia *= -1
-            if q.alpha * q.beta < 0:
-                diferencia *= -1
+            theta = 0
+            #implementación de la lookup table del QEA
+            if diferencia > 0:
+                if solucion_actual[i] == 0 and b[i]:
+                    theta = angulo
+                elif solucion_actual[i] == 1 and b[i] == 0:
+                    theta = -angulo
+            q.actualizar(self.crear_matriz_rotacion(theta))
             
-            q.actualizar(self.crear_matriz_rotacion(angulo*diferencia))
-            lista_tabu[i] = iteraciones_tabu
+    def guardar_soluciones(vecindario,B,k,tamano_poblacion):
+        combinado = np.concatenate(vecindario,B)
+        combinado_sorted = sorted(combinado,key=lambda x: x[1], reverse=True)
+        #comprobamos que el numero de iteraciones al menos 1
+        mejores = tamano_poblacion * k/100
+        if mejores > 1:
+            B = combinado_sorted[:mejores]
+        else:
+            B = combinado_sorted[0]
+            
 
 
-    def busqueda_tabu_cuantica(self,iteraciones, angulo, tamano_poblacion, iteraciones_tabu, archivo):
-        """Ejecuta el algoritmo de búsqueda tabú inspirada en cuántica (QTS).
+    def algoritmo_evolutivo_cuantico(self,iteraciones, angulo, tamano_poblacion,k,periodo_migracion,archivo):
+        """Ejecuta el algoritmo de evolutivo inspirado en la cuántica (QEA).
         
         Parámetros
         ----------
@@ -225,29 +235,29 @@ class QTS:
             Ángulo usado para construir la matriz de rotación.
         tamano_poblacion : int
             Tamaño de la población de vecindarios a generar.
-        iteraciones_tabu : int
-            Número de iteraciones que un ítem debe permanecer en la lista tabú.
+        k : int
+            El porcentaje de mejores soluciones que vamos a guardar en B(t) de P(t)
         archivo: Path
             Archivo de instancia del problema de la mochila.
         
-        Retorna
+        Devuelve
         -------
         mejor_sol : [solucion : [int], valor : int, peso : int]
             Mejor solución encontrada.
         mejor_iter : int
             Iteración donde se encontró la mejor solución.
         """
-        
         poblacion_q = []
-        lista_tabu = dict()
+        b = []
+        B = []
         capacidad_max = 0
         num_items = 0
         optimo = 0
-        solucion_actual = None
+        solucion_actual = []
         
-        mejor_sol = []
         mejor_iter = -1
 
+        #leemos la entrada del problema
         with open(archivo) as f:
             num_items = int(f.readline().split()[1])
             capacidad_max = int(f.readline().split()[1])
@@ -259,45 +269,33 @@ class QTS:
         
         solucion_actual = self.medir_poblacion(poblacion_q)
         valor_actual, peso_actual = self.evaluar_y_reparar(poblacion_q, solucion_actual, capacidad_max)
-        
-        mejor_sol = [solucion_actual, valor_actual, peso_actual]
+        solucion_actual = [solucion_actual,valor_actual,peso_actual]
+        vecindario_poblacion = self.obtener_vecindario(poblacion_q , tamano_poblacion)
+        vecindario = self.evaluar_y_reparar_vecindario(poblacion_q , vecindario_poblacion, capacidad_max)
+        self.guardar_soluciones(vecindario,B,k,tamano_poblacion)
+        b = B[0]
         #historial de soluciones para hacer la comparativa entre algoritmos
-        historial_soluciones = [mejor_sol[1]]
+        historial_soluciones = [b]
+
         contador_iter = 0
-        iter_sin_cambio = 0
-        while contador_iter < iteraciones and iter_sin_cambio < 200:
+
+        while contador_iter < iteraciones:
             contador_iter += 1
-            vecindario_poblacion = self.obtener_vecindario(poblacion_q, tamano_poblacion)
-            vecindario = self.evaluar_y_reparar_vecindario(poblacion_q, vecindario_poblacion, capacidad_max)
-            mejor_vecino = max(vecindario, key=lambda x: x[1])
-            peor_vecino = min(vecindario, key=lambda x: x[1])
+            vecindario_poblacion = self.obtener_vecindario(poblacion_q , tamano_poblacion)
+            vecindario = self.evaluar_y_reparar_vecindario(poblacion_q , vecindario_poblacion, capacidad_max)
+            self.actualizar_estado(poblacion_q,angulo,solucion_actual,b)
+            solucion_actual = max(vecindario, key=lambda x: x[1])
+            self.guardar_soluciones(vecindario,B,k,tamano_poblacion)
             
-            encontro_mejor = (
-                mejor_vecino[1] > mejor_sol[1] or 
-                (mejor_vecino[1] == mejor_sol[1] and mejor_vecino[2] < mejor_sol[2])
-            )
+            #siempre se actualiza, si b era la mejor sol en B(t -1) también lo será en B(t)
+            b = B[0]
+            historial_soluciones.append(b)
+            if(contador_iter % periodo_migracion == 0):
+                self.migrar(b,B)
             
-            if encontro_mejor:
-                mejor_sol = mejor_vecino[:]
-                mejor_iter = contador_iter
-                iter_sin_cambio = 0
-            else:
-                iter_sin_cambio +=1
             
-            historial_soluciones.append(mejor_sol[1])
 
-            for clave, valor in list(lista_tabu.items()):
-                lista_tabu[clave] -= 1
-                if lista_tabu[clave]==0:
-                    del lista_tabu[clave]
-            
-            self.actualizar_estado(poblacion_q, angulo, lista_tabu, iteraciones_tabu, solucion_actual, mejor_vecino[0], True)
-            solucion_actual = self.medir_poblacion(poblacion_q)
-            
-            self.actualizar_estado(poblacion_q, angulo, lista_tabu, iteraciones_tabu, solucion_actual, peor_vecino[0], False)
-            solucion_actual = self.medir_poblacion(poblacion_q)
-
-        return mejor_sol, mejor_iter, historial_soluciones
+        return b, mejor_iter, historial_soluciones
     
 
     def __init__(self,iteraciones,theta,tamano_poblacion,iteraciones_tabu):
@@ -307,6 +305,6 @@ class QTS:
         self.iteraciones_tabu = iteraciones_tabu
 
     def run(self,instancia_mochila):
-        return self.busqueda_tabu_cuantica(self.iteraciones,self.theta,self.tamano_poblacion,self.iteraciones_tabu,instancia_mochila)
+        return self.algoritmo_evolutivo_cuantico(self.iteraciones,self.theta,self.tamano_poblacion,self.iteraciones_tabu,instancia_mochila)
     
 
