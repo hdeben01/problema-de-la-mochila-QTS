@@ -54,8 +54,8 @@ class QEA:
         """Mide cada qubit de la población de ObjetosCuanticos y devuelve el resultado."""
         return [q.medir() for q in poblacion_q]
     
-    def migrar(b,B):
-        for i in B:
+    def migrar(self,b,B):
+        for i,(solucion,valor,peso) in enumerate(B):
             B[i] = b
 
 
@@ -206,21 +206,19 @@ class QEA:
             theta = 0
             #implementación de la lookup table del QEA
             if diferencia > 0:
-                if solucion_actual[i] == 0 and b[i]:
+                if solucion_actual[0][i] == 0 and b[0][i]:
                     theta = angulo
-                elif solucion_actual[i] == 1 and b[i] == 0:
+                elif solucion_actual[0][i] == 1 and b[0][i] == 0:
                     theta = -angulo
             q.actualizar(self.crear_matriz_rotacion(theta))
             
-    def guardar_soluciones(vecindario,B,k,tamano_poblacion):
-        combinado = np.concatenate(vecindario,B)
+    def guardar_soluciones(self,vecindario,B,k,tamano_poblacion):
+        combinado = vecindario + B
         combinado_sorted = sorted(combinado,key=lambda x: x[1], reverse=True)
         #comprobamos que el numero de iteraciones al menos 1
-        mejores = tamano_poblacion * k/100
-        if mejores > 1:
-            B = combinado_sorted[:mejores]
-        else:
-            B = combinado_sorted[0]
+        mejores = max(1, int(tamano_poblacion * k / 100))
+        return combinado_sorted[:mejores]
+        
             
 
 
@@ -272,10 +270,10 @@ class QEA:
         solucion_actual = [solucion_actual,valor_actual,peso_actual]
         vecindario_poblacion = self.obtener_vecindario(poblacion_q , tamano_poblacion)
         vecindario = self.evaluar_y_reparar_vecindario(poblacion_q , vecindario_poblacion, capacidad_max)
-        self.guardar_soluciones(vecindario,B,k,tamano_poblacion)
+        B = self.guardar_soluciones(vecindario, B, k, tamano_poblacion)
         b = B[0]
         #historial de soluciones para hacer la comparativa entre algoritmos
-        historial_soluciones = [b]
+        historial_soluciones = [b[1]]
 
         contador_iter = 0
 
@@ -285,11 +283,11 @@ class QEA:
             vecindario = self.evaluar_y_reparar_vecindario(poblacion_q , vecindario_poblacion, capacidad_max)
             self.actualizar_estado(poblacion_q,angulo,solucion_actual,b)
             solucion_actual = max(vecindario, key=lambda x: x[1])
-            self.guardar_soluciones(vecindario,B,k,tamano_poblacion)
+            B = self.guardar_soluciones(vecindario, B, k, tamano_poblacion)
             
             #siempre se actualiza, si b era la mejor sol en B(t -1) también lo será en B(t)
             b = B[0]
-            historial_soluciones.append(b)
+            historial_soluciones.append(b[1])
             if(contador_iter % periodo_migracion == 0):
                 self.migrar(b,B)
             
@@ -298,13 +296,14 @@ class QEA:
         return b, mejor_iter, historial_soluciones
     
 
-    def __init__(self,iteraciones,theta,tamano_poblacion,iteraciones_tabu):
+    def __init__(self,iteraciones,theta,tamano_poblacion,k,periodo_migracion):
         self.iteraciones = iteraciones
         self.theta = theta
         self.tamano_poblacion = tamano_poblacion
-        self.iteraciones_tabu = iteraciones_tabu
+        self.k = k
+        self.periodo_migracion = periodo_migracion
 
     def run(self,instancia_mochila):
-        return self.algoritmo_evolutivo_cuantico(self.iteraciones,self.theta,self.tamano_poblacion,self.iteraciones_tabu,instancia_mochila)
+        return self.algoritmo_evolutivo_cuantico(self.iteraciones,self.theta,self.tamano_poblacion,self.k,self.periodo_migracion,instancia_mochila)
     
 

@@ -265,7 +265,7 @@ class QTS:
         historial_soluciones = [mejor_sol[1]]
         contador_iter = 0
         iter_sin_cambio = 0
-        while contador_iter < iteraciones and iter_sin_cambio < 200:
+        while contador_iter < iteraciones:
             contador_iter += 1
             vecindario_poblacion = self.obtener_vecindario(poblacion_q, tamano_poblacion)
             vecindario = self.evaluar_y_reparar_vecindario(poblacion_q, vecindario_poblacion, capacidad_max)
