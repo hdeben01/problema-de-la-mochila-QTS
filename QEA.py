@@ -2,6 +2,7 @@ import numpy as np
 import math
 from pathlib import Path
 import matplotlib as plt
+import copy
 
 class QEA:
     class QObjeto:
@@ -138,6 +139,7 @@ class QEA:
         peso_total : int
             Peso total de la solución evaluada y reparada.
         """
+    
         valor_total, peso_total = self.evaluar_solucion(poblacion_q, solucion)
         if peso_total > capacidad_max:
             valor_total, peso_total = self.reparar_solucion(poblacion_q, solucion, capacidad_max, valor_total, peso_total)
@@ -158,7 +160,10 @@ class QEA:
         [solucion : [int]]
             Lista de soluciones vecinas.
         """
-        return [[q.medir() for q in poblacion_q] for _ in range(tamano_poblacion)]
+        vecindario_generado = []
+        for i in range(tamano_poblacion):
+            vecindario_generado.append([q.medir() for q in poblacion_q[i]])
+        return vecindario_generado
 
     def evaluar_y_reparar_vecindario(self,poblacion_q, vecindario, capacidad_max):
         """Evalúa (valor y peso) y repara todas las soluciones vecinas.
@@ -178,11 +183,13 @@ class QEA:
             Lista de soluciones reparadas y su evaluación.
         """
         soluciones = []
-        for solucion in vecindario:       
-            soluciones.append([solucion, *self.evaluar_y_reparar(poblacion_q, solucion, capacidad_max)])
+        index = 0
+        for solucion in vecindario:     
+            soluciones.append([solucion, *self.evaluar_y_reparar(poblacion_q[index], solucion, capacidad_max)])
+            index += 1
         return soluciones
 
-    def actualizar_estado(self, poblacion_q,angulo, solucion_actual, b):
+    def actualizar_estado(self, poblacion_q,tamano_poblacion,angulo, vecindario, b):
         """Actualiza cada qubit de la población aplicando la matriz 
         según la solución actual y la solución de comparación.
         
@@ -201,16 +208,18 @@ class QEA:
         b : [int]
             Solución para comparar con la actual.
         """
-        diferencia = b[1] - solucion_actual[1]
-        for i, q in enumerate(poblacion_q):
-            theta = 0
-            #implementación de la lookup table del QEA
-            if diferencia > 0:
-                if solucion_actual[0][i] == 0 and b[0][i]:
-                    theta = angulo
-                elif solucion_actual[0][i] == 1 and b[0][i] == 0:
-                    theta = -angulo
-            q.actualizar(self.crear_matriz_rotacion(theta))
+
+        for poblacion in range(tamano_poblacion):
+            diferencia = b[1] - vecindario[poblacion][1]
+            for i, q in enumerate(poblacion_q[poblacion]):
+                theta = 0
+                #implementación de la lookup table del QEA
+                if diferencia > 0:
+                    if vecindario[poblacion][0][i] == 0 and b[0][i]:
+                        theta = angulo
+                    elif vecindario[poblacion][0][i] == 1 and b[0][i] == 0:
+                        theta = -angulo
+                q.actualizar(self.crear_matriz_rotacion(theta))
             
     def guardar_soluciones(self,vecindario,B,k,tamano_poblacion):
         combinado = vecindario + B
@@ -265,9 +274,9 @@ class QEA:
                 _, valor, peso, _ = list(map(int, linea.split(',')))
                 poblacion_q.append(self.QObjeto(valor, peso))
         
-        solucion_actual = self.medir_poblacion(poblacion_q)
-        valor_actual, peso_actual = self.evaluar_y_reparar(poblacion_q, solucion_actual, capacidad_max)
-        solucion_actual = [solucion_actual,valor_actual,peso_actual]
+        #creamos la poblacion Q(0) con los estados en superposicion de tamanyo tamano_poblacion
+        poblacion_q = [copy.deepcopy(poblacion_q) for _ in range(tamano_poblacion)]
+
         vecindario_poblacion = self.obtener_vecindario(poblacion_q , tamano_poblacion)
         vecindario = self.evaluar_y_reparar_vecindario(poblacion_q , vecindario_poblacion, capacidad_max)
         B = self.guardar_soluciones(vecindario, B, k, tamano_poblacion)
@@ -281,8 +290,7 @@ class QEA:
             contador_iter += 1
             vecindario_poblacion = self.obtener_vecindario(poblacion_q , tamano_poblacion)
             vecindario = self.evaluar_y_reparar_vecindario(poblacion_q , vecindario_poblacion, capacidad_max)
-            self.actualizar_estado(poblacion_q,angulo,solucion_actual,b)
-            solucion_actual = max(vecindario, key=lambda x: x[1])
+            self.actualizar_estado(poblacion_q,tamano_poblacion,angulo,vecindario,b)
             B = self.guardar_soluciones(vecindario, B, k, tamano_poblacion)
             
             #siempre se actualiza, si b era la mejor sol en B(t -1) también lo será en B(t)
@@ -306,4 +314,5 @@ class QEA:
     def run(self,instancia_mochila):
         return self.algoritmo_evolutivo_cuantico(self.iteraciones,self.theta,self.tamano_poblacion,self.k,self.periodo_migracion,instancia_mochila)
     
+
 
