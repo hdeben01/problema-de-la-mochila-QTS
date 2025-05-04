@@ -200,7 +200,7 @@ class QTS:
             True si la solución de comparación fue la mejor encontrada.
         """
         for i, q in enumerate(poblacion_q):
-            if lista_tabu.setdefault(i, 0) == 0:
+            if lista_tabu.get(i, 0) > 0:
                 continue
             diferencia = solucion_comparacion[i] - solucion_actual[i]
             if diferencia == 0:

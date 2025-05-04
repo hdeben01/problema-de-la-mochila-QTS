@@ -178,7 +178,7 @@ class AE_QTS:
             soluciones.append([solucion, *self.evaluar_y_reparar(poblacion_q, solucion, capacidad_max)])
         return soluciones
 
-    def actualizar_estado(self,poblacion_q, angulo, lista_tabu, iteraciones_tabu, solucion_actual, solucion_comparacion, es_mejor):
+    def actualizar_estado(self,poblacion_q, angulo, lista_tabu, iteraciones_tabu,vecindario):
         """Actualiza cada qubit de la población aplicando la matriz 
         según la solución actual y la solución de comparación.
         
@@ -199,19 +199,24 @@ class AE_QTS:
         es_mejor : bool
             True si la solución de comparación fue la mejor encontrada.
         """
-        for i, q in enumerate(poblacion_q):
-            if lista_tabu.setdefault(i, 0) == 0:
-                continue
-            diferencia = solucion_comparacion[i] - solucion_actual[i]
-            if diferencia == 0:
-                continue
-            if not es_mejor: 
-                diferencia *= -1
-            if q.alpha * q.beta < 0:
-                diferencia *= -1
+        vecindario_ordenado = sorted(vecindario, key=lambda x: x[1], reverse=True)
+        for k in range(len(vecindario_ordenado)//2):
+            mejor = vecindario_ordenado[k]
+            peor = vecindario_ordenado[len(vecindario_ordenado) - 1 - k]
             
-            q.actualizar(self.crear_matriz_rotacion(angulo*diferencia))
-            lista_tabu[i] = iteraciones_tabu
+            t = k + 1
+            for i, q in enumerate(poblacion_q):
+                
+                if lista_tabu.get(i, 0) > 0:
+                    continue
+                diferencia = mejor[0][i] - peor[0][i]
+                if diferencia == 0:
+                    continue
+                if q.alpha * q.beta < 0:
+                    diferencia *= -1
+                
+                q.actualizar(self.crear_matriz_rotacion((angulo*diferencia)/t)) # diferencia con la QTS normal
+                lista_tabu[i] = iteraciones_tabu
 
 
     def busqueda_tabu_cuantica(self,iteraciones, angulo, tamano_poblacion, iteraciones_tabu, archivo):
@@ -291,11 +296,9 @@ class AE_QTS:
                 if lista_tabu[clave]==0:
                     del lista_tabu[clave]
             
-            self.actualizar_estado(poblacion_q, angulo, lista_tabu, iteraciones_tabu, solucion_actual, mejor_vecino[0], True)
+            self.actualizar_estado(poblacion_q, angulo, lista_tabu, iteraciones_tabu,vecindario)
             solucion_actual = self.medir_poblacion(poblacion_q)
-            
-            self.actualizar_estado(poblacion_q, angulo, lista_tabu, iteraciones_tabu, solucion_actual, peor_vecino[0], False)
-            solucion_actual = self.medir_poblacion(poblacion_q)
+         
 
         return mejor_sol, mejor_iter, historial_soluciones
     
@@ -309,4 +312,9 @@ class AE_QTS:
     def run(self,instancia_mochila):
         return self.busqueda_tabu_cuantica(self.iteraciones,self.theta,self.tamano_poblacion,self.iteraciones_tabu,instancia_mochila)
     
+
+
+instancia_mochila = Path('./data/toyProblemInstance_100.csv')
+ae_qt = AE_QTS(100, 0.01 * math.pi, 10, 1)
+_,_, historial_ae_qts = ae_qt.run(instancia_mochila)
 
