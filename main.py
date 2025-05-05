@@ -18,9 +18,9 @@ instancia_mochila = Path('./data/toyProblemInstance_100.csv')
 
 # Función que ejecuta una corrida completa
 def run_algorithms(_):
-    ae_qt = AE_QTS(num_generaciones, 0.01 * math.pi, 10, 3)
-    qt = QTS(num_generaciones, 0.01 * math.pi, 10, 3)
-    qea = QEA(num_generaciones, 0.01 * math.pi, 10, 10, 3)
+    ae_qt = AE_QTS(num_generaciones, 0.03 * math.pi, 10, 3)
+    qt = QTS(num_generaciones, 0.03 * math.pi, 10, 3)
+    qea = QEA(num_generaciones, 0.03 * math.pi, 10, 10, 3)
     _, _, historial_qea = qea.run(instancia_mochila)
     _, _, historial_qts = qt.run(instancia_mochila)
     _,_, historial_ae_qts = ae_qt.run(instancia_mochila)

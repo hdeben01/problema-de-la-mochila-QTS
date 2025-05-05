@@ -315,8 +315,3 @@ class AE_QTS:
     
 
 
-instancia_mochila = Path('./data/toyProblemInstance_100.csv')
-ae_qt = AE_QTS(100, 0.01 * math.pi, 10, 1)
-mejor_sol,_, historial_ae_qts = ae_qt.run(instancia_mochila)
-print(mejor_sol)
-
