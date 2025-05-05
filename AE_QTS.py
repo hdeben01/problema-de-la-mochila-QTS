@@ -202,21 +202,22 @@ class AE_QTS:
         vecindario_ordenado = sorted(vecindario, key=lambda x: x[1], reverse=True)
         for k in range(len(vecindario_ordenado)//2):
             mejor = vecindario_ordenado[k]
-            peor = vecindario_ordenado[len(vecindario_ordenado) - 1 - k]
+            peor = vecindario_ordenado[len(vecindario_ordenado) -1 - k]
             
-            t = k + 1
+            
             for i, q in enumerate(poblacion_q):
-                
-                if lista_tabu.get(i, 0) > 0:
-                    continue
+                t = k + 1
+                #if lista_tabu.get(i, 0) > 0:
+                   #continue
                 diferencia = mejor[0][i] - peor[0][i]
+                
                 if diferencia == 0:
                     continue
                 if q.alpha * q.beta < 0:
                     diferencia *= -1
                 
                 q.actualizar(self.crear_matriz_rotacion((angulo*diferencia)/t)) # diferencia con la QTS normal
-                lista_tabu[i] = iteraciones_tabu
+                #lista_tabu[i] = iteraciones_tabu
 
 
     def busqueda_tabu_cuantica(self,iteraciones, angulo, tamano_poblacion, iteraciones_tabu, archivo):
@@ -275,7 +276,7 @@ class AE_QTS:
             vecindario_poblacion = self.obtener_vecindario(poblacion_q, tamano_poblacion)
             vecindario = self.evaluar_y_reparar_vecindario(poblacion_q, vecindario_poblacion, capacidad_max)
             mejor_vecino = max(vecindario, key=lambda x: x[1])
-            peor_vecino = min(vecindario, key=lambda x: x[1])
+            
             
             encontro_mejor = (
                 mejor_vecino[1] > mejor_sol[1] or 
@@ -316,5 +317,6 @@ class AE_QTS:
 
 instancia_mochila = Path('./data/toyProblemInstance_100.csv')
 ae_qt = AE_QTS(100, 0.01 * math.pi, 10, 1)
-_,_, historial_ae_qts = ae_qt.run(instancia_mochila)
+mejor_sol,_, historial_ae_qts = ae_qt.run(instancia_mochila)
+print(mejor_sol)
 

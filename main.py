@@ -9,7 +9,7 @@ from multiprocessing import Pool, cpu_count
 
 
 # Parámetros
-num_runs = 5
+num_runs = 100
 num_generaciones = 1000
 instancia_mochila = Path('./data/toyProblemInstance_100.csv')
 #instancia_mochila = Path('./data/toyProblemInstance_250.csv')
@@ -18,8 +18,8 @@ instancia_mochila = Path('./data/toyProblemInstance_100.csv')
 
 # Función que ejecuta una corrida completa
 def run_algorithms(_):
-    ae_qt = AE_QTS(num_generaciones, 0.01 * math.pi, 10, 1)
-    qt = QTS(num_generaciones, 0.01 * math.pi, 10, 2)
+    ae_qt = AE_QTS(num_generaciones, 0.01 * math.pi, 10, 3)
+    qt = QTS(num_generaciones, 0.01 * math.pi, 10, 3)
     qea = QEA(num_generaciones, 0.01 * math.pi, 10, 10, 3)
     _, _, historial_qea = qea.run(instancia_mochila)
     _, _, historial_qts = qt.run(instancia_mochila)

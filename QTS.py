@@ -178,7 +178,7 @@ class QTS:
             soluciones.append([solucion, *self.evaluar_y_reparar(poblacion_q, solucion, capacidad_max)])
         return soluciones
 
-    def actualizar_estado(self,poblacion_q, angulo, lista_tabu, iteraciones_tabu, solucion_actual, solucion_comparacion, es_mejor):
+    def actualizar_estado(self,poblacion_q, angulo, lista_tabu, iteraciones_tabu, peor_sol, solucion_comparacion, es_mejor):
         """Actualiza cada qubit de la población aplicando la matriz 
         según la solución actual y la solución de comparación.
         
@@ -202,7 +202,7 @@ class QTS:
         for i, q in enumerate(poblacion_q):
             if lista_tabu.get(i, 0) > 0:
                 continue
-            diferencia = solucion_comparacion[i] - solucion_actual[i]
+            diferencia = solucion_comparacion[i] - peor_sol[i]
             if diferencia == 0:
                 continue
             if not es_mejor: 
@@ -291,11 +291,10 @@ class QTS:
                 if lista_tabu[clave]==0:
                     del lista_tabu[clave]
             
-            self.actualizar_estado(poblacion_q, angulo, lista_tabu, iteraciones_tabu, solucion_actual, mejor_vecino[0], True)
+            self.actualizar_estado(poblacion_q, angulo, lista_tabu, iteraciones_tabu, peor_vecino[0], mejor_vecino[0], True)
             solucion_actual = self.medir_poblacion(poblacion_q)
             
-            self.actualizar_estado(poblacion_q, angulo, lista_tabu, iteraciones_tabu, solucion_actual, peor_vecino[0], False)
-            solucion_actual = self.medir_poblacion(poblacion_q)
+            
 
         return mejor_sol, mejor_iter, historial_soluciones
     
