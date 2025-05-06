@@ -298,8 +298,8 @@ class QTS:
             self.actualizar_estado(poblacion_q, angulo, solucion_actual, mejor_sol[0], True,lista_tabu,self.itt_tabu)
             solucion_actual = self.medir_poblacion(poblacion_q)
             
-            #self.actualizar_estado(poblacion_q, angulo, solucion_actual, peor_vecino[0], False,lista_tabu,self.itt_tabu)
-            #solucion_actual = self.medir_poblacion(poblacion_q)
+            self.actualizar_estado(poblacion_q, angulo/3, solucion_actual, peor_vecino[0], False,lista_tabu,self.itt_tabu)
+            solucion_actual = self.medir_poblacion(poblacion_q)
             
 
         return mejor_sol, mejor_iter, historial_soluciones
@@ -316,13 +316,14 @@ class QTS:
         return self.busqueda_tabu_cuantica(self.iteraciones,self.theta,self.tamano_poblacion,self.itt_tabu,instancia_mochila)
     
 
-instancia_mochila = Path('./data/toyProblemInstance_100.csv')
-#instancia_mochila = Path('./data/toyProblemInstance_250.csv')
+#instancia_mochila = Path('./data/toyProblemInstance_100.csv')
+instancia_mochila = Path('./data/toyProblemInstance_250.csv')
 #instancia_mochila = Path('./data/toyProblemInstance_500.csv')
+#instancia_mochila = Path('data/knapPI_11_500_1000_1.csv')
 
 
 
 
-#qt = QTS(1000, 0.01 * math.pi, 10,2)
-#_, _, historial_qts = qt.run(instancia_mochila)
-#print(historial_qts)
+qt = QTS(1000, 0.01 * math.pi, 10,2)
+mejor_sol, mejor_it, historial_qts = qt.run(instancia_mochila)
+print(mejor_sol,mejor_it)
