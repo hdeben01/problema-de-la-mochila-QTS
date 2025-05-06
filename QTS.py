@@ -207,7 +207,7 @@ class QTS:
             if diferencia == 0:
                 lista_tabu[i] = tabu_itt
                 continue
-            if diferencia < 0: 
+            if not es_mejor: 
                 diferencia *= -1
             if q.alpha * q.beta < 0:
                 diferencia *= -1
