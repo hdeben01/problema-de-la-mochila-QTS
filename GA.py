@@ -166,8 +166,8 @@ def load_input_from_file(file_path):
             weights.append(int(parts[2]))
     return n_items, values, weights, max_weight
 
-instancia_mochila = Path('.\data\knapPI_11_500_1000_1.csv')
+instancia_mochila = Path('.\data\\toyProblemInstance_100.csv')
 
-solution,historial_soluciones = genetic_algorithm(instancia_mochila,1000,1000,0.5)
+solution,historial_soluciones = genetic_algorithm(instancia_mochila,1000,10,0.001)
 
 print(solution)

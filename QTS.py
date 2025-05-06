@@ -178,7 +178,7 @@ class QTS:
             soluciones.append([solucion, *self.evaluar_y_reparar(poblacion_q, solucion, capacidad_max)])
         return soluciones
 
-    def actualizar_estado(self,poblacion_q, angulo, lista_tabu, iteraciones_tabu, peor_sol, solucion_comparacion, es_mejor):
+    def actualizar_estado(self,poblacion_q, angulo, peor_sol, solucion_comparacion, es_mejor,lista_tabu,tabu_itt):
         """Actualiza cada qubit de la población aplicando la matriz 
         según la solución actual y la solución de comparación.
         
@@ -200,10 +200,12 @@ class QTS:
             True si la solución de comparación fue la mejor encontrada.
         """
         for i, q in enumerate(poblacion_q):
-            if lista_tabu.get(i, 0) > 0:
+            
+            if lista_tabu.setdefault(i, 0) == 0:
                 continue
             diferencia = solucion_comparacion[i] - peor_sol[i]
             if diferencia == 0:
+                lista_tabu[i] = tabu_itt
                 continue
             if not es_mejor: 
                 diferencia *= -1
@@ -211,10 +213,11 @@ class QTS:
                 diferencia *= -1
             
             q.actualizar(self.crear_matriz_rotacion(angulo*diferencia))
-            lista_tabu[i] = iteraciones_tabu
+            
+            
 
 
-    def busqueda_tabu_cuantica(self,iteraciones, angulo, tamano_poblacion, iteraciones_tabu, archivo):
+    def busqueda_tabu_cuantica(self,iteraciones, angulo, tamano_poblacion,itt_tabu,archivo):
         """Ejecuta el algoritmo de búsqueda tabú inspirada en cuántica (QTS).
         
         Parámetros
@@ -281,31 +284,43 @@ class QTS:
                 mejor_sol = mejor_vecino[:]
                 mejor_iter = contador_iter
                 iter_sin_cambio = 0
-            else:
+            else: 
                 iter_sin_cambio +=1
+
+            for key, value in list(lista_tabu.items()):
+                lista_tabu[key] -= 1
+                if lista_tabu[key]==0:
+                    del lista_tabu[key]
             
             historial_soluciones.append(mejor_sol[1])
-
-            for clave, valor in list(lista_tabu.items()):
-                lista_tabu[clave] -= 1
-                if lista_tabu[clave]==0:
-                    del lista_tabu[clave]
-            
-            self.actualizar_estado(poblacion_q, angulo, lista_tabu, iteraciones_tabu, peor_vecino[0], mejor_vecino[0], True)
+            self.actualizar_estado(poblacion_q, angulo, solucion_actual, mejor_sol[0], True,lista_tabu,self.itt_tabu)
             solucion_actual = self.medir_poblacion(poblacion_q)
             
+            #self.actualizar_estado(poblacion_q, angulo, solucion_actual, peor_vecino[0], False,lista_tabu,self.itt_tabu)
+            #solucion_actual = self.medir_poblacion(poblacion_q)
             
 
         return mejor_sol, mejor_iter, historial_soluciones
     
 
-    def __init__(self,iteraciones,theta,tamano_poblacion,iteraciones_tabu):
+    def __init__(self,iteraciones,theta,tamano_poblacion,itt_tabu):
         self.iteraciones = iteraciones
         self.theta = theta
         self.tamano_poblacion = tamano_poblacion
-        self.iteraciones_tabu = iteraciones_tabu
+        self.itt_tabu = itt_tabu
+
 
     def run(self,instancia_mochila):
-        return self.busqueda_tabu_cuantica(self.iteraciones,self.theta,self.tamano_poblacion,self.iteraciones_tabu,instancia_mochila)
+        return self.busqueda_tabu_cuantica(self.iteraciones,self.theta,self.tamano_poblacion,self.itt_tabu,instancia_mochila)
     
 
+instancia_mochila = Path('./data/toyProblemInstance_100.csv')
+#instancia_mochila = Path('./data/toyProblemInstance_250.csv')
+#instancia_mochila = Path('./data/toyProblemInstance_500.csv')
+
+
+
+
+qt = QTS(1000, 0.01 * math.pi, 10,2)
+_, _, historial_qts = qt.run(instancia_mochila)
+print(historial_qts)
