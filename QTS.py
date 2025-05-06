@@ -67,7 +67,7 @@ class QTS:
         solucion : [int]
             Solución obtenida de una medición de la población.
             
-        Retorna
+        Devuelve
         -------
         valor : int
             Valor total de la solución evaluada.
@@ -317,13 +317,13 @@ class QTS:
     
 
 #instancia_mochila = Path('./data/toyProblemInstance_100.csv')
-instancia_mochila = Path('./data/toyProblemInstance_250.csv')
+#instancia_mochila = Path('./data/toyProblemInstance_250.csv')
 #instancia_mochila = Path('./data/toyProblemInstance_500.csv')
 #instancia_mochila = Path('data/knapPI_11_500_1000_1.csv')
 
 
 
 
-qt = QTS(1000, 0.01 * math.pi, 10,2)
-mejor_sol, mejor_it, historial_qts = qt.run(instancia_mochila)
-print(mejor_sol,mejor_it)
+#qt = QTS(1000, 0.01 * math.pi, 10,2)
+#mejor_sol, mejor_it, historial_qts = qt.run(instancia_mochila)
+#print(mejor_sol,mejor_it)

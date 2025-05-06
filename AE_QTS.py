@@ -299,7 +299,7 @@ class AE_QTS:
                 lista_tabu[clave] -= 1
                 if lista_tabu[clave]==0:
                     del lista_tabu[clave]
-            
+            vecindario.append(mejor_sol)
             self.actualizar_estado(poblacion_q, angulo, lista_tabu, iteraciones_tabu,vecindario)
             solucion_actual = self.medir_poblacion(poblacion_q)
          
@@ -323,8 +323,8 @@ instancia_mochila = Path('./data/toyProblemInstance_100.csv')
 
 # Función que ejecuta una corrida completa
 
-ae_qt = AE_QTS(1000, 0.01 * math.pi, 10, 2)
+#ae_qt = AE_QTS(1000, 0.1 * math.pi, 10, 2)
 
-_,_, historial_ae_qts = ae_qt.run(instancia_mochila)
+#_,_, historial_ae_qts = ae_qt.run(instancia_mochila)
 
-print(historial_ae_qts)
+#print(historial_ae_qts)
