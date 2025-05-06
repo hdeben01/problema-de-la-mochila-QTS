@@ -167,8 +167,8 @@ def load_input_from_file(file_path):
             weights.append(int(parts[2]))
     return n_items, values, weights, max_weight
 
-instancia_mochila = Path('.\data\\toyProblemInstance_100.csv')
+#instancia_mochila = Path('.\data\\toyProblemInstance_100.csv')
 
-solution,historial_soluciones = genetic_algorithm(instancia_mochila,1000,10,0.001)
+#solution,historial_soluciones = genetic_algorithm(instancia_mochila,1000,10,0.001)
 
-print(solution)
+#print(solution)

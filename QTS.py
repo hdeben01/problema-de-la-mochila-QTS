@@ -321,6 +321,6 @@ instancia_mochila = Path('./data/toyProblemInstance_100.csv')
 
 
 
-qt = QTS(1000, 0.01 * math.pi, 10,2)
-_, _, historial_qts = qt.run(instancia_mochila)
-print(historial_qts)
+#qt = QTS(1000, 0.01 * math.pi, 10,2)
+#_, _, historial_qts = qt.run(instancia_mochila)
+#print(historial_qts)
