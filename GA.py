@@ -78,6 +78,7 @@ def genetic_algorithm(file_path, population_size=100, generations=100, mutation_
         # si no es factible, sustituir por individuo goloso aleatorio
         if compute_fitness(ind, values, weights, max_weight) == 0:
             ind = create_feasible_individual(n_items, values, weights, max_weight)
+            print(ind)
         population.append(ind)
     historial_soluciones = []
 
@@ -101,7 +102,7 @@ def genetic_algorithm(file_path, population_size=100, generations=100, mutation_
 
         # mutate the offspring
         for i in range(len(offspring)):
-            offspring[i] = mutate(offspring[i], mutation_rate)
+           offspring[i] = mutate(offspring[i], mutation_rate)
 
         # replace the old population with the new offspring
         population = offspring
@@ -166,8 +167,8 @@ def load_input_from_file(file_path):
             weights.append(int(parts[2]))
     return n_items, values, weights, max_weight
 
-instancia_mochila = Path('.\data\knapPI_11_500_1000_1.csv')
+instancia_mochila = Path('./data/toyProblemInstance_500.csv')
 
-solution,historial_soluciones = genetic_algorithm(instancia_mochila,1000,1000,0.5)
+solution,historial_soluciones = genetic_algorithm(instancia_mochila,100,10,0.001)
 
 print(solution)

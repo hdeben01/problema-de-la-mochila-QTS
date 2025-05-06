@@ -205,7 +205,7 @@ class QTS:
             diferencia = solucion_comparacion[i] - peor_sol[i]
             if diferencia == 0:
                 continue
-            if not es_mejor: 
+            if diferencia < 0: 
                 diferencia *= -1
             if q.alpha * q.beta < 0:
                 diferencia *= -1
