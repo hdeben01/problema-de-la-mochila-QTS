@@ -13,8 +13,8 @@ from GA import genetic_algorithm
 num_runs = 10
 num_generaciones = 1000
 #instancia_mochila = Path('./data/toyProblemInstance_100.csv')
-#instancia_mochila = Path('./data/toyProblemInstance_250.csv')
-instancia_mochila = Path('./data/toyProblemInstance_500.csv')
+instancia_mochila = Path('./data/toyProblemInstance_250.csv')
+#instancia_mochila = Path('./data/toyProblemInstance_500.csv')
 
 
 # Función que ejecuta una corrida completa

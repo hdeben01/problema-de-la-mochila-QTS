@@ -115,6 +115,26 @@ class QTS:
                 valor_actual -= poblacion_q[indice].valor
                 peso_actual -= poblacion_q[indice].peso
         
+            # Luego intenta rellenar objetos que quepan, de forma codiciosa
+        capacidad_restante = capacidad_max - peso_actual
+
+        # Buscar candidatos no incluidos que quepan
+        candidatos = [
+            (i, q.valor / q.peso if q.peso > 0 else 0)
+            for i, (q, sel) in enumerate(zip(poblacion_q, solucion))
+            if sel == 0 and q.peso <= capacidad_restante
+        ]
+
+        # Ordenar por valor/peso descendente
+        candidatos.sort(key=lambda x: x[1], reverse=True)
+
+        for i, _ in candidatos:
+            if poblacion_q[i].peso <= capacidad_restante:
+                solucion[i] = 1
+                valor_actual += poblacion_q[i].valor
+                peso_actual += poblacion_q[i].peso
+                capacidad_restante -= poblacion_q[i].peso
+        
         return valor_actual, peso_actual
 
     def evaluar_y_reparar(self,poblacion_q, solucion, capacidad_max):
@@ -318,12 +338,12 @@ class QTS:
 
 #instancia_mochila = Path('./data/toyProblemInstance_100.csv')
 #instancia_mochila = Path('./data/toyProblemInstance_250.csv')
-#instancia_mochila = Path('./data/toyProblemInstance_500.csv')
+instancia_mochila = Path('./data/toyProblemInstance_500.csv')
 #instancia_mochila = Path('data/knapPI_11_500_1000_1.csv')
 
 
 
 
-#qt = QTS(1000, 0.01 * math.pi, 10,2)
-#mejor_sol, mejor_it, historial_qts = qt.run(instancia_mochila)
-#print(mejor_sol,mejor_it)
+qt = QTS(1000, 0.01 * math.pi, 10,2)
+mejor_sol, mejor_it, historial_qts = qt.run(instancia_mochila)
+print(mejor_sol,mejor_it)

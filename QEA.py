@@ -119,6 +119,26 @@ class QEA:
                 solucion[indice] = 0
                 valor_actual -= poblacion_q[indice].valor
                 peso_actual -= poblacion_q[indice].peso
+                
+        # Luego intenta rellenar objetos que quepan, de forma codiciosa
+        capacidad_restante = capacidad_max - peso_actual
+
+        # Buscar candidatos no incluidos que quepan
+        candidatos = [
+            (i, q.valor / q.peso if q.peso > 0 else 0)
+            for i, (q, sel) in enumerate(zip(poblacion_q, solucion))
+            if sel == 0 and q.peso <= capacidad_restante
+        ]
+
+        # Ordenar por valor/peso descendente
+        candidatos.sort(key=lambda x: x[1], reverse=True)
+
+        for i, _ in candidatos:
+            if poblacion_q[i].peso <= capacidad_restante:
+                solucion[i] = 1
+                valor_actual += poblacion_q[i].valor
+                peso_actual += poblacion_q[i].peso
+                capacidad_restante -= poblacion_q[i].peso
         
         return valor_actual, peso_actual
 

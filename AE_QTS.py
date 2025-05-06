@@ -115,6 +115,26 @@ class AE_QTS:
                 valor_actual -= poblacion_q[indice].valor
                 peso_actual -= poblacion_q[indice].peso
         
+        # Luego intenta rellenar objetos que quepan, de forma codiciosa
+        capacidad_restante = capacidad_max - peso_actual
+
+        # Buscar candidatos no incluidos que quepan
+        candidatos = [
+            (i, q.valor / q.peso if q.peso > 0 else 0)
+            for i, (q, sel) in enumerate(zip(poblacion_q, solucion))
+            if sel == 0 and q.peso <= capacidad_restante
+        ]
+
+        # Ordenar por valor/peso descendente
+        candidatos.sort(key=lambda x: x[1], reverse=True)
+
+        for i, _ in candidatos:
+            if poblacion_q[i].peso <= capacidad_restante:
+                solucion[i] = 1
+                valor_actual += poblacion_q[i].valor
+                peso_actual += poblacion_q[i].peso
+                capacidad_restante -= poblacion_q[i].peso
+        
         return valor_actual, peso_actual
 
     def evaluar_y_reparar(self,poblacion_q, solucion, capacidad_max):
@@ -316,15 +336,15 @@ class AE_QTS:
     def run(self,instancia_mochila):
         return self.busqueda_tabu_cuantica(self.iteraciones,self.theta,self.tamano_poblacion,self.iteraciones_tabu,instancia_mochila)
     
-instancia_mochila = Path('./data/toyProblemInstance_100.csv')
+#instancia_mochila = Path('./data/toyProblemInstance_100.csv')
 #instancia_mochila = Path('./data/toyProblemInstance_250.csv')
-#instancia_mochila = Path('./data/toyProblemInstance_500.csv')
+instancia_mochila = Path('./data/toyProblemInstance_500.csv')
 
 
 # Función que ejecuta una corrida completa
 
-#ae_qt = AE_QTS(1000, 0.1 * math.pi, 10, 2)
+ae_qt = AE_QTS(1000, 0.1 * math.pi, 10, 2)
 
-#_,_, historial_ae_qts = ae_qt.run(instancia_mochila)
+_,_, historial_ae_qts = ae_qt.run(instancia_mochila)
 
-#print(historial_ae_qts)
+print(historial_ae_qts)
