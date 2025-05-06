@@ -37,10 +37,25 @@ def crossover(parent1, parent2):
     child2 = parent2[:split_index] + parent1[split_index:]
     return child1, child2
 
-def mutate(chromosome, mutation_rate):
+def mutate_balanced(chromosome, mutation_rate, values, weights, max_weight):
     for i in range(len(chromosome)):
         if random.uniform(0, 1) < mutation_rate:
-            chromosome[i] = 1 - chromosome[i]
+            if chromosome[i] == 0:
+                # intenta añadir el ítem
+                if compute_weight(chromosome, weights) + weights[i] <= max_weight:
+                    chromosome[i] = 1
+                else:
+                    # intenta liberar espacio: eliminar algún ítem aleatorio
+                    ones = [j for j in range(len(chromosome)) if chromosome[j] == 1 and j != i]
+                    random.shuffle(ones)
+                    for j in ones:
+                        if compute_weight(chromosome, weights) - weights[j] + weights[i] <= max_weight:
+                            chromosome[j] = 0
+                            chromosome[i] = 1
+                            break
+            else:
+                # quitar el ítem siempre es factible
+                chromosome[i] = 0
     return chromosome
 
 def create_feasible_individual(n_items, values, weights, max_weight):
@@ -78,7 +93,6 @@ def genetic_algorithm(file_path, population_size=100, generations=100, mutation_
         # si no es factible, sustituir por individuo goloso aleatorio
         if compute_fitness(ind, values, weights, max_weight) == 0:
             ind = create_feasible_individual(n_items, values, weights, max_weight)
-            print(ind)
         population.append(ind)
     historial_soluciones = []
 
@@ -102,7 +116,7 @@ def genetic_algorithm(file_path, population_size=100, generations=100, mutation_
 
         # mutate the offspring
         for i in range(len(offspring)):
-           offspring[i] = mutate(offspring[i], mutation_rate)
+           offspring[i] = mutate_balanced(offspring[i], mutation_rate,values,weights,max_weight)
 
         # replace the old population with the new offspring
         population = offspring
@@ -118,7 +132,6 @@ def genetic_algorithm(file_path, population_size=100, generations=100, mutation_
 
     # return the solution
     selected_items = [i+1 for i in range(n_items) if best_chromosome[i] == 1]
-    print(best_chromosome)
     solution = {
         'items': selected_items,
         'value': best_fitness_score,

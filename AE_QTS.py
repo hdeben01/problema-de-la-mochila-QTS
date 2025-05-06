@@ -43,8 +43,10 @@ class AE_QTS:
             matriz :
                 Matriz bidimensional (compuerta cuántica) para aplicar al qubit.
             """
-            self.alpha = matriz[0][0] * self.alpha + matriz[0][1] * self.beta
-            self.beta = matriz[1][0] * self.alpha + matriz[1][1] * self.beta
+            alpha_old = self.alpha
+            beta_old = self.beta
+            self.alpha = matriz[0][0] * alpha_old + matriz[0][1] * beta_old
+            self.beta = matriz[1][0] * alpha_old + matriz[1][1] * beta_old
 
     def crear_matriz_rotacion(self,angulo):
         """Genera una matriz de rotación para operar en un QObjeto con el ángulo dado."""
@@ -107,7 +109,7 @@ class AE_QTS:
             Peso total de la solución reparada.
         """
         while peso_actual > capacidad_max:
-            indice = np.random.randint(0, len(solucion)-1)
+            indice = np.random.randint(0, len(solucion))
             if solucion[indice]:
                 solucion[indice] = 0
                 valor_actual -= poblacion_q[indice].valor

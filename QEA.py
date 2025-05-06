@@ -44,8 +44,10 @@ class QEA:
             matriz :
                 Matriz bidimensional (compuerta cuántica) para aplicar al qubit.
             """
-            self.alpha = matriz[0][0] * self.alpha + matriz[0][1] * self.beta
-            self.beta = matriz[1][0] * self.alpha + matriz[1][1] * self.beta
+            alpha_old = self.alpha
+            beta_old = self.beta
+            self.alpha = matriz[0][0] * alpha_old + matriz[0][1] * beta_old
+            self.beta = matriz[1][0] * alpha_old + matriz[1][1] * beta_old
 
     def crear_matriz_rotacion(self,angulo):
         """Genera una matriz de rotación para operar en un QObjeto con el ángulo dado."""
@@ -112,7 +114,7 @@ class QEA:
             Peso total de la solución reparada.
         """
         while peso_actual > capacidad_max:
-            indice = np.random.randint(0, len(solucion)-1)
+            indice = np.random.randint(0, len(solucion))
             if solucion[indice]:
                 solucion[indice] = 0
                 valor_actual -= poblacion_q[indice].valor
@@ -210,11 +212,11 @@ class QEA:
         """
 
         for poblacion in range(tamano_poblacion):
-            diferencia = b[1] - vecindario[poblacion][1]
+            diferencia =  vecindario[poblacion][1] - b[1]
             for i, q in enumerate(poblacion_q[poblacion]):
                 theta = 0
                 #implementación de la lookup table del QEA
-                if diferencia > 0:
+                if not diferencia >= 0:
                     if vecindario[poblacion][0][i] == 0 and b[0][i]:
                         theta = angulo
                     elif vecindario[poblacion][0][i] == 1 and b[0][i] == 0:
