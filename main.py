@@ -10,12 +10,13 @@ from GA import genetic_algorithm
 
 
 # Parámetros
-num_runs = 10
+num_runs = 100
 num_generaciones = 1000
 #instancia_mochila = Path('./data/toyProblemInstance_100.csv')
-instancia_mochila = Path('./data/toyProblemInstance_250.csv')
-#instancia_mochila = Path('./data/toyProblemInstance_500.csv')
-
+#instancia_mochila = Path('./data/toyProblemInstance_250.csv')
+instancia_mochila = Path('./data/toyProblemInstance_500.csv')
+#instancia_mochila = Path('./data/knapPI_13_500_1000_1.csv')
+#instancia_mochila = Path('data/knapPI_1_5000_1000000_1.csv')
 
 # Función que ejecuta una corrida completa
 def run_algorithms(_):
@@ -36,7 +37,7 @@ if __name__ == '__main__':
         resultados = pool.map(run_algorithms, range(num_runs))
 
     # Separar los historiales en listas distintas
-    historiales_qts, historiales_qea,historiales_ae_qts,historiales_ga = zip(*resultados)
+    historiales_qts, historiales_qea,historiales_ae_qts,historiales_ga, = zip(*resultados)
 
     # Convertir a arrays
     historiales_qts_np = np.array(historiales_qts)

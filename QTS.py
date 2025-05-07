@@ -28,7 +28,7 @@ class QTS:
         def medir(self):
             """Mide el valor del qubit comparando con un número aleatorio entre [0,1).
             
-            Retorna
+            Devuelve
             -------
             medicion : int
                 0 o 1 dependiendo del qubit (alpha y beta) y el número aleatorio generado.
@@ -101,7 +101,7 @@ class QTS:
         peso_actual : int
             Peso total de la solución a reparar.
         
-        Retorna
+        Devuelve
         -------
         valor_actual : int
             Valor total de la solución reparada.
@@ -116,25 +116,36 @@ class QTS:
                 peso_actual -= poblacion_q[indice].peso
         
             # Luego intenta rellenar objetos que quepan, de forma codiciosa
-        capacidad_restante = capacidad_max - peso_actual
+        #capacidad_restante = capacidad_max - peso_actual
 
         # Buscar candidatos no incluidos que quepan
-        candidatos = [
-            (i, q.valor / q.peso if q.peso > 0 else 0)
-            for i, (q, sel) in enumerate(zip(poblacion_q, solucion))
-            if sel == 0 and q.peso <= capacidad_restante
-        ]
+        #candidatos = [
+            #(i, q.valor / q.peso if q.peso > 0 else 0)
+            #for i, (q, sel) in enumerate(zip(poblacion_q, solucion))
+            #if sel == 0 and q.peso <= capacidad_restante
+        #]
 
         # Ordenar por valor/peso descendente
-        candidatos.sort(key=lambda x: x[1], reverse=True)
+        #candidatos.sort(key=lambda x: x[1], reverse=True)
 
-        for i, _ in candidatos:
-            if poblacion_q[i].peso <= capacidad_restante:
-                solucion[i] = 1
-                valor_actual += poblacion_q[i].valor
-                peso_actual += poblacion_q[i].peso
-                capacidad_restante -= poblacion_q[i].peso
+        #for i, _ in candidatos:
+            #if poblacion_q[i].peso <= capacidad_restante:
+                #solucion[i] = 1
+                #valor_actual += poblacion_q[i].valor
+                #peso_actual += poblacion_q[i].peso
+                #capacidad_restante -= poblacion_q[i].peso
         
+        anyadido = True
+        while anyadido:
+            anyadido = False
+            for i in range(len(solucion)):
+                if solucion[i] == 0 and peso_actual + poblacion_q[i].peso <= capacidad_max:
+                    solucion[i] = 1
+                    valor_actual += poblacion_q[i].valor
+                    peso_actual += poblacion_q[i].peso
+                    anyadido = True
+                    break
+
         return valor_actual, peso_actual
 
     def evaluar_y_reparar(self,poblacion_q, solucion, capacidad_max):
@@ -149,7 +160,7 @@ class QTS:
         capacidad_max : int
             Capacidad máxima de peso de la mochila.
         
-        Retorna
+        Devuelve
         -------
         valor_total : int
             Valor total de la solución evaluada y reparada.
@@ -171,7 +182,7 @@ class QTS:
         tamano_poblacion : int
             Número de vecindarios de soluciones a generar.
         
-        Retorna
+        Devuelve
         -------
         [solucion : [int]]
             Lista de soluciones vecinas.
@@ -190,7 +201,7 @@ class QTS:
         capacidad_max : int
             Capacidad máxima de peso de la mochila.
         
-        Retorna
+        Devuelve
         -------
         [[solucion : [int], valor : int, peso : int]]
             Lista de soluciones reparadas y su evaluación.
@@ -200,7 +211,7 @@ class QTS:
             soluciones.append([solucion, *self.evaluar_y_reparar(poblacion_q, solucion, capacidad_max)])
         return soluciones
 
-    def actualizar_estado(self,poblacion_q, angulo, peor_sol, solucion_comparacion, es_mejor,lista_tabu,tabu_itt):
+    def actualizar_estado(self,poblacion_q, angulo, sol_actual, solucion_comparacion, es_mejor,lista_tabu,tabu_itt):
         """Actualiza cada qubit de la población aplicando la matriz 
         según la solución actual y la solución de comparación.
         
@@ -212,7 +223,7 @@ class QTS:
             Ángulo usado para construir la matriz de rotación.
         lista_tabu : dict {int : int}
             Lista tabú (implementada como un diccionario).
-        iteraciones_tabu : int
+        tabu_itt : int
             Número de iteraciones que un ítem debe permanecer en la lista tabú.
         solucion_actual : [int]
             Solución actual de una medición de la población.
@@ -225,7 +236,7 @@ class QTS:
             
             if lista_tabu.setdefault(i, 0) == 0:
                 continue
-            diferencia = solucion_comparacion[i] - peor_sol[i]
+            diferencia = solucion_comparacion[i] - sol_actual[i]
             if diferencia == 0:
                 lista_tabu[i] = tabu_itt
                 continue
@@ -255,7 +266,7 @@ class QTS:
         archivo: Path
             Archivo de instancia del problema de la mochila.
         
-        Retorna
+        Devuelve
         -------
         mejor_sol : [solucion : [int], valor : int, peso : int]
             Mejor solución encontrada.
@@ -344,6 +355,6 @@ instancia_mochila = Path('./data/toyProblemInstance_500.csv')
 
 
 
-qt = QTS(1000, 0.01 * math.pi, 10,2)
-mejor_sol, mejor_it, historial_qts = qt.run(instancia_mochila)
-print(mejor_sol,mejor_it)
+#qt = QTS(1000, 0.01 * math.pi, 10,2)
+#mejor_sol, mejor_it, historial_qts = qt.run(instancia_mochila)
+#print(mejor_sol,mejor_it)
