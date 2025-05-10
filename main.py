@@ -13,16 +13,16 @@ from GA import genetic_algorithm
 num_runs = 100
 num_generaciones = 1000
 #instancia_mochila = Path('./data/toyProblemInstance_100.csv')
-#instancia_mochila = Path('./data/toyProblemInstance_250.csv')
-instancia_mochila = Path('./data/toyProblemInstance_500.csv')
+instancia_mochila = Path('./data/toyProblemInstance_250.csv')
+#instancia_mochila = Path('./data/toyProblemInstance_500.csv')
 #instancia_mochila = Path('./data/knapPI_13_500_1000_1.csv')
 #instancia_mochila = Path('data/knapPI_1_5000_1000000_1.csv')
 
 # Función que ejecuta una corrida completa
 def run_algorithms(_):
-    ae_qt = AE_QTS(num_generaciones, 0.1 * math.pi, 10, 2)
-    qt = QTS(num_generaciones, 0.01 * math.pi, 10, 2)
-    qea = QEA(num_generaciones, 0.01 * math.pi, 10, 50, 10)
+    ae_qt = AE_QTS(num_generaciones, 0.1 * math.pi, 100, 2)
+    qt = QTS(num_generaciones, 0.01 * math.pi, 100, 2)
+    qea = QEA(num_generaciones, 0.01 * math.pi, 100, 50, 10)
     _,historial_ga = genetic_algorithm(instancia_mochila,10,num_generaciones,0.01)
     _, _, historial_qea = qea.run(instancia_mochila)
     _, _, historial_qts = qt.run(instancia_mochila)
