@@ -1,3 +1,11 @@
+# Bienvenido al proyecto
+
+Este README está disponible en:
+
+- [🇬🇧 English version](README_en.md)
+- [🇪🇸 Versión en español](README_es.md)
+
+
 <h1>Proyecto final de la asignatura de Ariquitectura y Programación de Computadores Cuánticos </h1>
 
 Los algoritmos inspirados en lo cuántico (quantum-inspired algorithms) son algoritmos clásicos diseñados utilizando conceptos y técnicas de la computación cuántica. Aunque no aprovechan directamente la superposición o el entrelazamiento cuántico, emplean ideas de la teoría cuántica para acelerar la resolución de problemas y tareas de optimización en hardware convencional. Estos algoritmos ayudan a resolver problemas a gran escala y de alta complejidad computacional, que serían difíciles o ineficientes de abordar mediante métodos clásicos.
@@ -11,4 +19,3 @@ Chiang, HP., Chou, YH., Chiu, CH. et al. A quantum-inspired Tabu search algorith
 Amplitude-Ensemble Quantum-Inspired Tabu Search Algorithm for Solving 0/1 Knapsack Problems. 	[arXiv:2311.12867](https://arxiv.org/abs/2311.12867)
 
 Han, Kuk-Hyun & Kim, Jong-Hwan. (2003). Quantum-inspired evolutionary algorithm for a class of combinatorial optimization. Evolutionary Computation, IEEE Transactions on. 6. 580 - 593. 10.1109/TEVC.2002.804320. [https://www.researchgate.net/publication/3418720_Quantum-inspired_evolutionary_algorithm_for_a_class_of_combinatorial_optimization](link)
-
