@@ -3,7 +3,6 @@
 Este README está disponible en:
 
 - [🇬🇧 English version](README_en.md)
-- [🇪🇸 Versión en español](README_es.md)
 
 
 <h1>Proyecto final de la asignatura de Ariquitectura y Programación de Computadores Cuánticos </h1>
